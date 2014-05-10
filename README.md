@@ -18,3 +18,5 @@ cd build
 cmake ..
 make
 
+
+![Demo App](app.png "Demo App")

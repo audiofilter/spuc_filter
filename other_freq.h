@@ -27,21 +27,13 @@ namespace SPUC {
   template <typename T> void other_freq(T& AP, int pts, double* w, int freq_off, double inc) {
 
   double d[pts];
-#ifdef MONO_ONLY
-	  double imp = 1;
-#else
-  complex<double> imp = 1;
-#endif
+  double imp = 1;
   double dsum = 0;
   double db=0;
   
   // Calculate equivalent FIR impulse response
   for (int i=0;i<pts;i++) {
-#ifdef MONO_ONLY
 	  d[i] = (AP.clock(imp));
-#else
-    d[i] = real(AP.clock(imp));
-#endif
     dsum += d[i];
     imp = 0;
     //	  std::cout << "d[" << i << "] = " << d[i] << "\n";
