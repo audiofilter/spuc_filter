@@ -8,9 +8,9 @@ Message("Project spuc plotdes")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
-FIND_PACKAGE(Qt5Widgets) # REQUIRED COMPONENTS Widgets Core Gui)
-FIND_PACKAGE(Qt5Core) # REQUIRED COMPONENTS Widgets Core Gui)
-FIND_PACKAGE(Qt5Gui) # REQUIRED COMPONENTS Widgets Core Gui)
+FIND_PACKAGE(Qt5Widgets)
+FIND_PACKAGE(Qt5Core)
+FIND_PACKAGE(Qt5Gui) 
 
 set(SPUCDIR ./spuc/spuc)
 
