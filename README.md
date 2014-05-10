@@ -19,4 +19,7 @@ cmake ..
 make
 
 
+Use the mouse to select cut-off, etc
+Simulataneously enable multiple filters for comparison
+
 ![Demo App](app.png "Demo App")
