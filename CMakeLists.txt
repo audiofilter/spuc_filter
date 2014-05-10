@@ -12,15 +12,13 @@ FIND_PACKAGE(Qt5Widgets) # REQUIRED COMPONENTS Widgets Core Gui)
 FIND_PACKAGE(Qt5Core) # REQUIRED COMPONENTS Widgets Core Gui)
 FIND_PACKAGE(Qt5Gui) # REQUIRED COMPONENTS Widgets Core Gui)
 
-set(SPUCDIR ../spuc/spuc)
+set(SPUCDIR ./spuc/spuc)
 
 ADD_DEFINITIONS("-Wall -fPIC -DSPUCBOOST")
 INCLUDE_DIRECTORIES(".." "/usr/local/opt/qt5/include" "${SPUCDIR}/..")
 LINK_DIRECTORIES("/usr/local/lib")
 
 set(EXECUTABLE_OUTPUT_PATH ..)
-
-
 
 # not sure if needed if libfilt/spuc is available!
 set(SOURCES
@@ -43,7 +41,6 @@ ${SPUCDIR}/create_remez_fir.cpp
 ${SPUCDIR}/fir_coeff.cpp 
 ${SPUCDIR}/notch_example.cpp 
 ${SPUCDIR}/remez_fir.cpp 
-#${SPUCDIR}/remezf.cpp 
 ${SPUCDIR}/raised_cosine_imp.cpp 
 make_filter.cpp 
 des_filter.cpp 
@@ -51,8 +48,6 @@ des_filter.cpp
 
 SET(plotdes_SOURCES main.cpp mainwindow.cpp other_freq.cpp qcustomplot.cpp)
 SET(plotdes_HEADERS mainwindow.h other_freq.h qcustomplot.h)
-
-#QT5_WRAP_CPP(plotdes_HEADERS_MOC ${plotdes_HEADERS})
 
 INCLUDE_DIRECTORIES(${QT5_INCLUDES})
 ADD_DEFINITIONS(${QT5Widgets_DEFINITIONS})
