@@ -24,7 +24,8 @@ Use the mouse to select cut-off, etc
 
 Simulataneously enable multiple filters for comparison
 
-Filter types in SPUC (not all in this app)
+Filter types in SPUC (not all in this app):
+
 	   * Butterworth
 	   * Chebyshev
 	   * Elliptic
