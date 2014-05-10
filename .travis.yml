@@ -1,12 +1,17 @@
+os:
+  - osx
 language: 
-  - cpp 
+  - objective-c
 compiler:
   - clang
+before_install:
+  - brew update
 install:
-  - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq qt5-qmake qtbase5-dev qtdeclarative5-dev 
-  - sudo apt-get install cmake libboost-dev
+  - brew install cmake
+  - brew install boost --with-c++11
+  - brew install qt5
+  - brew linkapps
+# Change this to your needs
 before_script:
   - git clone https://github.com/audiofilter/spuc.git
   - mkdir build
