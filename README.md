@@ -37,4 +37,9 @@ Filter types in SPUC (not all in this app)
 	* Cut/Boost Filter
 	* Halfband/Subband IIR filters
 	   
+
+### Build status - Mac Os X, clang - Automated Travis Build
+[![Build Status](https://travis-ci.org/audiofilter/spuc_filter.png)](https://travis-ci.org/audiofilter/spuc_filter)
+
+
 ![Demo App](app.png "Demo App")
