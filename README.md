@@ -14,6 +14,7 @@ Requirements:
 		qt5
 		spuc
 
+		(see .travis.yml for install steps if needed)
 		cd build
 		cmake ..
 		make
@@ -22,8 +23,6 @@ Requirements:
 Use the mouse to select cut-off, etc
 Simulataneously enable multiple filters for comparison
 
-### Build status - Mac Os X, clang
-[![Build Status](https://travis-ci.org/audiofilter/spuc_filter.png)](https://travis-ci.org/audiofilter/spuc_filter)
 
 
 ![Demo App](app.png "Demo App")
