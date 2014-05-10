@@ -1,5 +1,5 @@
 language: 
-  - c
+  - cpp 
 compiler:
   - clang
 install:
