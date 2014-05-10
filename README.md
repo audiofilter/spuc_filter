@@ -21,19 +21,20 @@ Requirements:
 
 
 Use the mouse to select cut-off, etc
+
 Simulataneously enable multiple filters for comparison
 
 Filter types in SPUC (not all in this app)
-	   Butterworth
-	   Chebyshev
-	   Elliptic
-	   Maximally flat FIR
-	   Remez Equiripple
-	   Raised Cosine FIR
-	   Gaussian FIR
-	   CIC
-	   Notch filter
-	   Cut/Boost Filter
-	   Halfband/Subband IIR filters
+	* Butterworth
+	* Chebyshev
+	* Elliptic
+	* Maximally flat FIR
+	* Remez Equiripple
+	* Raised Cosine FIR
+	* Gaussian FIR
+	* CIC
+	* Notch filter
+	* Cut/Boost Filter
+	* Halfband/Subband IIR filters
 	   
 ![Demo App](app.png "Demo App")

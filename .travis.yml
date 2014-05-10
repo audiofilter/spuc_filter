@@ -3,7 +3,9 @@ language:
 compiler:
   - clang
 install:
-  - sudo apt-get install cmake boost qt5
+  - sudo apt-add-repository ppa:ubuntu-sdk-team/ppa
+  - sudo apt-get update
+  - sudo apt-get install cmake libboost-dev qtdeclarative5-dev
 before_script:
   - git clone https://github.com/audiofilter/spuc.git
   - mkdir build
