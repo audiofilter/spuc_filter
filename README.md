@@ -42,5 +42,6 @@ Filter types in SPUC (not all in this app):
 ### Build status - Mac Os X, clang - Automated Travis Build
 [![Build Status](https://travis-ci.org/audiofilter/spuc_filter.png)](https://travis-ci.org/audiofilter/spuc_filter)
 
+[![Gitter chat](https://badges.gitter.im/audiofilter/spuc.png)](https://gitter.im/audiofilter/spuc)
 
 ![Demo App](app.png "Demo App")
