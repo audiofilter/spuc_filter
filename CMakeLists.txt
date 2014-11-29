@@ -5,6 +5,7 @@ ENDIF()
 PROJECT("plotdes")
 Message("Project spuc plotdes")
 
+set(CMAKE_CXX_FLAGS " -std=c++11 ")
 set(CMAKE_PREFIX_PATH "/usr/local/opt/qt5")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
