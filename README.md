@@ -9,10 +9,9 @@ QCustomPlot library (www.qcustomplot.com) - GPL v3
 
 Requirements:
 
-		boost
 		cmake
 		qt5
-		spuc
+		spuclib
 
 		(see .travis.yml for install steps if needed)
 		cd build
