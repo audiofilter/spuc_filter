@@ -6,13 +6,13 @@ compiler:
   - clang
 before_install:
   - brew update
+	- brew tap audiofilter/spuc
 install:
-#  - brew install cmake
   - brew install qt5
   - brew linkapps
+	- brew install spuc
 # Change this to your needs
 before_script:
-  - git clone https://github.com/audiofilter/spuc.git
   - mkdir build
   - cd build
   - cmake ..

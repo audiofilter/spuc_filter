@@ -12,38 +12,29 @@ set(CMAKE_AUTOMOC ON)
 
 FIND_PACKAGE(Qt5 REQUIRED Gui Core Widgets)
 
-set(SPUCDIR ./spuc/spuc)
+# if you have put spuc here use it, otherwise look for it
+if (EXISTS ${CMAKE_SOURCE_DIR}/spuc)
+	message(STATUS "Found spuc locally")
+	add_subdirectory(spuc)
+	set(SPUCFILT_LIBRARY libspuc_filt.a)
+else()
+	find_library(SPUCFILT_LIBRARY libspuc_filt.a HINT "/usr/local/lib")
+	if (SPUCFILT_LIBRARY)
+		message(STATUS "Found libspuc_filt")
+	else()
+		message(ERROR  "Please install spuc library")
+	endif()
+endif()
 
 ADD_DEFINITIONS("-Wall -fPIC -DSPUCBOOST")
-INCLUDE_DIRECTORIES(".." "/usr/local/opt/qt5/include" "${SPUCDIR}/..")
+INCLUDE_DIRECTORIES(".." "/usr/local/opt/qt5/include")
 LINK_DIRECTORIES("/usr/local/lib")
 
 set(EXECUTABLE_OUTPUT_PATH ..)
 
-# not sure if needed if libfilt/spuc is available!
 set(SOURCES
-${SPUCDIR}/root_raised_cosine_imp.cpp 
-${SPUCDIR}/shelf_allpass1.cpp 
-${SPUCDIR}/iir_coeff.cpp 
-${SPUCDIR}/gaussian_fir.cpp 
-${SPUCDIR}/fir_inv_dft.cpp 
-${SPUCDIR}/elliptic_iir.cpp 
-${SPUCDIR}/elliptic_allpass.cpp 
-${SPUCDIR}/chebyshev_iir.cpp 
-${SPUCDIR}/butterworth_iir.cpp 
-${SPUCDIR}/butterworth_fir.cpp 
-${SPUCDIR}/butterworth_allpass.cpp 
-${SPUCDIR}/root_raised_cosine_quantized.cpp 
-${SPUCDIR}/spuc_math.cpp 
-${SPUCDIR}/find_roots.cpp 
-${SPUCDIR}/create_remez_lpfir.cpp 
-${SPUCDIR}/create_remez_fir.cpp 
-${SPUCDIR}/fir_coeff.cpp 
-${SPUCDIR}/notch_example.cpp 
-${SPUCDIR}/remez_fir.cpp 
-${SPUCDIR}/raised_cosine_imp.cpp 
-make_filter.cpp 
-des_filter.cpp 
+	make_filter.cpp 
+	des_filter.cpp 
 )
 
 SET(plotdes_SOURCES main.cpp mainwindow.cpp other_freq.cpp qcustomplot.cpp)
@@ -54,7 +45,7 @@ ADD_DEFINITIONS(${QT5Widgets_DEFINITIONS})
 
 ADD_LIBRARY(filtlib ${SOURCES})
 ADD_EXECUTABLE(plotdes ${plotdes_SOURCES} ${plotdes_HEADERS_MOC})
-TARGET_LINK_LIBRARIES(plotdes filtlib ${QT_LIBRARIES})
+TARGET_LINK_LIBRARIES(plotdes filtlib ${QT_LIBRARIES} ${SPUCFILT_LIBRARY})
 QT5_USE_Modules(plotdes Gui)
 QT5_USE_Modules(plotdes Core)
 QT5_USE_Modules(plotdes Widgets)
