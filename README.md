@@ -11,9 +11,9 @@ Requirements:
 
 		cmake
 		qt5
-		spuclib
+		spuc
 
-		(see .travis.yml for install steps if needed)
+		(see .travis.yml or .travis.linux for install steps if needed)
 		cd build
 		cmake ..
 		make
