@@ -11,7 +11,7 @@ Requirements:
 
 		cmake
 		qt5
-		spuc
+		spuce
 
 		(see .travis.yml or .travis.linux for install steps if needed)
 		cd build
@@ -23,7 +23,7 @@ Use the mouse to select cut-off, etc
 
 Simulataneously enable multiple filters for comparison
 
-Filter types in SPUC (not all in this app):
+Filter types in SPUCE (not all in this app):
 
 	   * Butterworth
 	   * Chebyshev
@@ -40,7 +40,5 @@ Filter types in SPUC (not all in this app):
 
 ### Build status - Mac Os X, clang - Automated Travis Build
 [![Build Status](https://travis-ci.org/audiofilter/spuc_filter.png)](https://travis-ci.org/audiofilter/spuc_filter)
-
-[![Gitter chat](https://badges.gitter.im/audiofilter/spuc.png)](https://gitter.im/audiofilter/spuc)
 
 ![Demo App](app.png "Demo App")
