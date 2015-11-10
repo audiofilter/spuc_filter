@@ -2,6 +2,8 @@ language:
   - cpp 
 compiler:
   - clang
+notifications:
+  slack: spuc:VfvBwrKcCRGX7RWcZBIfXFBr
 install:
   - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
   - sudo apt-get update -qq
