@@ -17,8 +17,8 @@
 #include "des_filter.h"
 #include "make_filter.h"
 
-make_filter LPF;
-make_filter* pLPF = &LPF;
+spuce::make_filter LPF;
+spuce::make_filter* pLPF = &LPF;
 float global_gain = 1.0;
 bool changing_filter = false;
 bool use_mono = false;
@@ -30,11 +30,9 @@ void set_gain(float g) { global_gain = g; }
 void lpf_sel(const char* sel) { pLPF->sel_filter(sel); }
 void set_filter_type(int t) { pLPF->set_filter_type(t); }
 double horiz_swipe(int len, bool in_passband) { return(pLPF->horiz_swipe(len,in_passband)); }
-double change_center(double f) { return(pLPF->change_center(f)); }
 double get_fc(int len, bool in_passband) { return(pLPF->get_fc(len,in_passband)); }
 int    get_order() { return(pLPF->get_order()); }
 bool is_fir() { return(pLPF->is_fir()); }
-bool is_bpf() { return(pLPF->is_bpf()); }
 double ripple() { return(pLPF->ripple()); }
 double stopdB() { return(pLPF->stopdB()); }
 void vertical_swipe(int len,bool in_passband,bool above_stop) { pLPF->vertical_swipe(len,in_passband,above_stop); }

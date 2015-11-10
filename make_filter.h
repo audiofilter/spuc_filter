@@ -1,5 +1,4 @@
-#ifndef SPUC_MAKE_FILTER
-#define SPUC_MAKE_FILTER
+#pragma once
 /*
     Copyright (C) 2014 Tony Kirke
 
@@ -16,35 +15,31 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <spuc/spuc_types.h>
-#ifndef MAKEFILTDES_H
-#define MAKEFILTDES_H
-#define BOOST_DISABLE_ASSERTS
-#include <spuc/complex.h>
-#include <spuc/fir_coeff.h>
-#include <spuc/iir.h>
-#include <spuc/fir.h>
-#include <spuc/cutboost.h>
-#include <spuc/notch_allpass.h>
-#include <spuc/iir_allpass1.h>
-#include <spuc/nested_iir_allpass_2.h>
-#include <spuc/nested_shelf_allpass_2.h>
-#include <spuc/iir_allpass1_cascade.h>
-#include <spuc/iir_allpass_variable_cascade.h>
-#include <spuc/iir_shelf.h>
-#include <spuc/shelf_allpass1.h>
-#include <spuc/cascaded_cic.h>
-#include <spuc/iir_comb.h>
-#include <spuc/notch_comb.h>
-namespace SPUC {
+#include <spuce/typedefs.h>
+#include <spuce/filters/fir_coeff.h>
+#include <spuce/filters/iir.h>
+#include <spuce/filters/fir.h>
+#include <spuce/filters/cutboost.h>
+#include <spuce/filters/notch_allpass.h>
+//#include <spuce/filters/iir_allpass1.h>
+//#include <spuce/filters/nested_iir_allpass_2.h>
+//#include <spuce/filters/nested_shelf_allpass_2.h>
+#include <spuce/filters/iir_allpass1_sections.h>
+#include <spuce/filters/iir_allpass1_sections_variable_delay.h>
+#include <spuce/filters/iir_shelf.h>
+#include <spuce/filters/shelf_allpass1.h>
+#include <spuce/filters/cascaded_cic.h>
+#include <spuce/filters/iir_comb.h>
+#include <spuce/filters/notch_comb.h>
+namespace spuce {
 
 #include "des_filter.h"
 
 enum fil_enum {None,MaxflatHalfband, EllipticHalfband, 
 			   Butterworth, Chebyshev, Elliptic,  
 			   MaxflatFIR, GaussianFIR, RemezFIR, 
-			   RaisedCosine, VariableAllpass, VariableShelf, Notch50,
-			   NotchIIR, CutBoost, Shelf, Cic, Comb, CombAllpass, RootRaisedCosine};
+			   RaisedCosine, 
+			   NotchIIR, CutBoost, Shelf, RootRaisedCosine};
 
 class make_filter {
 	
@@ -89,7 +84,6 @@ class make_filter {
   double high_shelf_gain;
   double nested_k;
   bool   hpf;
-  double cic_gain;
 	
   //  bool elliptic_halfband_hpf;
 
@@ -106,8 +100,6 @@ class make_filter {
   int rrc_taps;
   int elliptic_halfband_order;
   int maxflat_halfband_order;
-  int cic_order;
-  int cic_rate;
   int comb_rate;
   int notch_comb_rate;
   
@@ -140,17 +132,11 @@ class make_filter {
   notch_allpass<audio_data_type,double> NOTCH;
   notch_allpass<audio_data_type,double> N50;
 
-  iir_allpass_variable_cascade<audio_data_type,double> B_Sub;
-  iir_allpass_variable_cascade<audio_data_type,double> E_Sub;
+  iir_allpass1_sections_variable_delay<audio_data_type,double> B_Sub;
+  iir_allpass1_sections_variable_delay<audio_data_type,double> E_Sub;
 
-  nested_iir_allpass_2<audio_data_type,double> V_All;
-  nested_shelf_allpass_2<audio_data_type,double> S_All;
   iir_shelf<audio_data_type,double> S_IIR;
   shelf_allpass1<audio_data_type,double> Z1_IIR;
-  cascaded_cic<audio_data_type> CCIC;
-	
-  iir_comb<audio_data_type,double> COMB;
-  notch_comb<audio_data_type,double> COMB_All;
 	
   fil_enum shape;
   fil_enum last_shape;
@@ -182,6 +168,4 @@ class make_filter {
   void set_fs(double f);
 
 };
-#endif
-} // namespace SPUC
-#endif
+} // namespace spuce

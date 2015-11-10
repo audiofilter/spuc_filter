@@ -14,21 +14,19 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <spuc/complex.h>
-#include <spuc/spuc_math.h>
-#include <spuc/other_freq.h>
+#include <spuce/typedefs.h>
+#include "other_freq.h"
 
-namespace SPUC {
+namespace spuce {
 
-void cic_freq(int rate, int order, int pts, double* w, int freq_off, double inc) {
+void cic_freq(int rate, int order, int pts, double* w, double inc) {
 	double db=0;
 	double sum = 0;
-	double wf = inc*PI/(double)pts;		
+	double wf = inc*M_PI/(double)pts;		
 	for (int i=0;i<pts;i++) {
-		if (i!=freq_off) sum = (1.0/rate)*sin(0.5*wf*(i-freq_off)*rate)/sin(0.5*wf*(i-freq_off));
-        else sum = 0;
-		//	  std::cout << "w1[" << i << "] = " << sum << "\n";
-		db = 10.0*order*log(magsq(sum))/log(10.0);
+		if (i!=0) sum = (1.0/rate)*sin(0.5*wf*i*rate)/sin(0.5*wf*i);
+    else sum = 0;
+		db = 10.0*order*log(sum*sum)/log(10.0);
 		w[i] = db;
 	}
 }

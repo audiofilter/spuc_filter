@@ -329,10 +329,10 @@ void MainWindow::graphMoveEvent(QMouseEvent *event)
   double xdis = dis.x();
   double ydis = dis.y();
 
-  if (abs(xdis) > abs(ydis)) {
-	horiz_swipe(xdis,true);
+  if (std::abs(xdis) > std::abs(ydis)) {
+    horiz_swipe(xdis,true);
   } else {
-	vertical_swipe(-ydis,true,true);
+    vertical_swipe(-ydis,true,true);
   }
   QCPGraph* ptr = GetPtr();
   dragStartPosition = event->pos();

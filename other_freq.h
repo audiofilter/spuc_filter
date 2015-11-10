@@ -17,14 +17,11 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef OTHER_FREQ_H
-#define OTHER_FREQ_H
+#pragma once
+#include <spuce/typedefs.h>
 
-#include <spuc/complex.h>
-#include <spuc/spuc_math.h>
-
-namespace SPUC {
-  template <typename T> void other_freq(T& AP, int pts, double* w, int freq_off, double inc) {
+namespace spuce {
+  template <typename T> void other_freq(T& AP, int pts, double* w, double inc) {
 
   double d[pts];
   double imp = 1;
@@ -45,43 +42,41 @@ namespace SPUC {
   // Now calculate frequency response using equivalent normalized 
   // FIR coefficients
   for (int k=0;k<pts;k++) {
-    complex<double> sum = 0;
-    complex<double> z = complex<double>(1.0,0.0);
-    double wf = inc*PI*(k-freq_off)/(double)pts;
-    complex<double> z_inc = polar(1.0,(double)wf);
+    std::complex<double> sum = 0;
+    std::complex<double> z = std::complex<double>(1.0,0.0);
+    double wf = inc*M_PI*(k)/(double)pts;
+    std::complex<double> z_inc = std::polar(1.0,(double)wf);
     for (int i=0;i<pts;i++) {
       sum += dsum*d[i]*z;
       z	= z*z_inc;
     }
     //	  std::cout << "w1[" << k << "] = " << sum << "\n";
-    db = 10.0*log(magsq(sum))/log(10.0);
+    db = 10.0*log(norm(sum))/log(10.0);
     w[k] = db;
   }
 }
 
-template <typename T> void fir_freq(T& MF, int pts, double* w, int freq_off, double inc) {
-
+template <typename T> void fir_freq(T& MF, int pts, double* w, double inc) {
   double t;
-  double w_inc = inc*PI/(float)pts; 
-  complex<double> z_inc, nom;
-	
+  double w_inc = inc*M_PI/(float)pts; 
+  std::complex<double> z_inc, nom;
   for (int i=0;i<pts;i++) {
-    double wf = w_inc*(i-freq_off);
-    complex<double> z(1,0);
-	z_inc = complex<double>(cos(wf),sin(wf));
-	nom = 0;
-	for (int j=0;j<MF.num_taps;j++) {
-	  nom += z*(complex<double>(MF.coeff[j]));
-	  //if (i==0) std::cout << "nom = " << nom << " " << MF.coeff[j] << "\n";
-	  z *= z_inc;
-	}
-	t = sqrt(magsq(nom));
+    double wf = w_inc*(i);
+    std::complex<double> z(1,0);
+    z_inc = std::polar(1.0,wf);
+    nom = 0;
+    for (int j=0;j<MF.number_of_taps();j++) {
+      nom += z*(std::complex<double>(MF.gettap(j)));
+      //std::cout << "nom = " << nom << " " << MF.gettap(j) << "\n";
+      z *= z_inc;
+    }
+    t = sqrt(norm(nom));
     if (t==0) t = 0.00001;
     t = 20.0*log(t)/log(10.0);
     w[i] = t;
   }
 }
-void cic_freq(int rate, int order, int pts, double* w, int freq_off, double inc); 
+void cic_freq(int rate, int order, int pts, double* w, double inc); 
 
 /*
  template <typename T> void filt_freq(T& MF, int pts, int bits, double* w, double inc) {
@@ -91,7 +86,7 @@ void cic_freq(int rate, int order, int pts, double* w, int freq_off, double inc)
   h0 = MF.freqz_mag(0);
   double h,t,tl;
 
-  double w_inc = inc*PI/(float)pts;
+  double w_inc = inc*M_PI/(float)pts;
   
   for (int i=0;i<pts;i++) {
     double wf = w_inc*i;
@@ -105,20 +100,18 @@ void cic_freq(int rate, int order, int pts, double* w, int freq_off, double inc)
 }
 */
 	
-template <typename T> void iir_freq(T& MF, bool hpf, int pts, int bits, double* w, int freq_off, double inc) {
+template <typename T> void iir_freq(T& MF, bool hpf, int pts, int bits, double* w, double inc) {
 		
 		double h0;
-		MF.quantize(bits);
 		h0 = MF.freqz_mag(0);
 		double h,t,tl;
 		
 		if (h0 < 0.01) h0 = 1.0;
-		if (hpf) h0 = 1.0/MF.hpf_gain;
 		
-		double w_inc = inc*PI/(float)pts;
+		double w_inc = inc*M_PI/(float)pts;
 		
 		for (int i=0;i<pts;i++) {
-			double wf = w_inc*(i-freq_off);
+			double wf = w_inc*(i);
 			h = MF.freqz_mag(wf);
 			t = h/h0;
 			if (t==0) t = 0.00001;
@@ -131,4 +124,3 @@ template <typename T> void iir_freq(T& MF, bool hpf, int pts, int bits, double* 
 
 
 } //
-#endif

@@ -1,185 +1,161 @@
 /*
-    Copyright (C) 2014 Tony Kirke
+  Copyright (C) 2014 Tony Kirke
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "make_filter.h"
-#define USE_DBL
 #include "other_freq.h"
-#include <spuc/iir.h>
-#include <spuc/iir_2nd.h>
-#include <spuc/fir_coeff.h>
-#include <spuc/notch_allpass.h>
-#include <spuc/iir_coeff.h>
-#include <spuc/butterworth_iir.h>
-#include <spuc/chebyshev_iir.h>
-#include <spuc/elliptic_iir.h>
-#include <spuc/butterworth_fir.h>
-#include <spuc/gaussian_fir.h>
-#include <spuc/create_remez_lpfir.h>
-#include <spuc/raised_cosine.h>
-#include <spuc/root_raised_cosine.h>
-#include <spuc/shelf_allpass1.h>
-//using namespace::SPUC;
-namespace SPUC {
+#include <spuce/filters/iir.h>
+#include <spuce/filters/iir_2nd.h>
+#include <spuce/filters/fir_coeff.h>
+#include <spuce/filters/notch_allpass.h>
+#include <spuce/filters/iir_coeff.h>
+#include <spuce/filters/butterworth_iir.h>
+#include <spuce/filters/chebyshev_iir.h>
+#include <spuce/filters/elliptic_iir.h>
+#include <spuce/filters/butterworth_fir.h>
+#include <spuce/filters/gaussian_fir.h>
+#include <spuce/filters/create_remez_lpfir.h>
+#include <spuce/filters/raised_cosine.h>
+#include <spuce/filters/root_raised_cosine.h>
+#include <spuce/filters/shelf_allpass1.h>
+namespace spuce {
 
-void make_filter::sel_filter(const char* c_sel) {
-	std::string sel(c_sel);
-	//std::cout << "Sel = " << sel << "\n";
-	if (sel == "Chebyshev") change_filter(Chebyshev);
-	else if (sel=="Maxflat Subband") change_filter(MaxflatHalfband);
-	else if (sel=="Elliptic Subband") change_filter(EllipticHalfband);
-	else if (sel=="Butterworth")	change_filter(Butterworth);
-	else if (sel=="Variable Allpass")	change_filter(VariableAllpass);
-	else if (sel=="Elliptic") change_filter(Elliptic);
-	else if (sel=="Maxflat FIR") change_filter(MaxflatFIR);
-	else if (sel=="Gaussian FIR") change_filter(GaussianFIR);
-	else if (sel=="Remez FIR") change_filter(RemezFIR);
-	else if (sel=="Raised Cosine") change_filter(RaisedCosine);
-	else if (sel=="Notch") change_filter(NotchIIR);
-	else if (sel=="Cut/Boost") change_filter(CutBoost);
-	else if (sel=="Shelf") change_filter(Shelf);
-	else if (sel=="VariableShelf")	change_filter(VariableShelf);
-	else if (sel=="Root Raised Cosine") change_filter(RootRaisedCosine);
-	else if (sel=="CIC") change_filter(Cic);
-	else if (sel=="Comb") change_filter(Comb);
-	else if (sel=="CombAllpass") change_filter(CombAllpass);
+  void make_filter::sel_filter(const char* c_sel) {
+    std::string sel(c_sel);
+    if (sel == "Chebyshev") change_filter(Chebyshev);
+    else if (sel=="Maxflat Subband") change_filter(MaxflatHalfband);
+    else if (sel=="Elliptic") change_filter(Elliptic);
+    else if (sel=="Elliptic Subband") change_filter(EllipticHalfband);
+    else if (sel=="Butterworth")	change_filter(Butterworth);
+    else if (sel=="Maxflat FIR") change_filter(MaxflatFIR);
+    else if (sel=="Gaussian FIR") change_filter(GaussianFIR);
+    else if (sel=="Remez FIR") change_filter(RemezFIR);
+    else if (sel=="Raised Cosine") change_filter(RaisedCosine);
+    else if (sel=="Notch") change_filter(NotchIIR);
+    else if (sel=="Cut/Boost") change_filter(CutBoost);
+    else if (sel=="Shelf") change_filter(Shelf);
+    else if (sel=="Root Raised Cosine") change_filter(RootRaisedCosine);
     else if (sel=="None") change_filter(None);
-    else if (sel=="50 Hertz Notch") change_filter(Notch50);
-	else std::cout << "Invalid filter selection\n";
-}
+    else std::cout << "Invalid filter selection\n";
+  }
 
-void make_filter::change_filter(fil_enum f) {
-	last_shape = shape;
-	shape = f;
-}
+  void make_filter::change_filter(fil_enum f) {
+    last_shape = shape;
+    shape = f;
+  }
 
-void make_filter::set_filter_type(int t) {
-	if (t==1) pass_type = high;
-	else if (t==2) pass_type = band;
-	else pass_type = low;
-}
+  void make_filter::set_filter_type(int t) {
+    if (t==1) pass_type = high;
+    else if (t==2) pass_type = band;
+    else pass_type = low;
+  }
 
-void make_filter::init(int points) { pts = points; }
-void make_filter::set_fs(double f) { fs = f*1000.0; }
+  void make_filter::init(int points) { pts = points; }
+  void make_filter::set_fs(double f) { fs = f*1000.0; }
 
-make_filter::~make_filter() {}
-make_filter::make_filter() : B_IIR(4), C_IIR(4), E_IIR(4),
-							 CUT_B(0.125,0.9,0.001), 
-							 B_Sub(0,3,2), E_Sub(0.3,3,2), 
-							 V_All(0.125,9./16.,0),
-							 S_All(0.125,9./16.,0), 
-							 S_IIR(0.1,0.4),
-							 CCIC(2,2), COMB(0.5,2) {
-	reset();
+  make_filter::~make_filter() {}
+  make_filter::make_filter() : B_IIR(4), C_IIR(4), E_IIR(4),
+                               CUT_B(0.125,0.9,0.001), 
+                               B_Sub(0,3,2), E_Sub(0.3,3,2), 
+                               S_IIR(0.1,0.4) {
+    reset();
     fs = 44100;
     phase = 0;
-    bpf_freq = 0.5;
-}
+  }
 
 
-void make_filter::clear_filters() {
-	M_Fir.set_size(0);	
-	R_Fir.set_size(0); 
-	G_Fir.set_size(0);	
-	RC_Fir.set_size(0);	
-	RRC_Fir.set_size(0); 	
-	E_IIR.clear(); 
-	C_IIR.clear(); 
-	B_IIR.clear(); 
-}
+  void make_filter::clear_filters() {
+    M_Fir.set_size(0);	
+    R_Fir.set_size(0); 
+    G_Fir.set_size(0);	
+    RC_Fir.set_size(0);	
+    RRC_Fir.set_size(0); 	
+    E_IIR.clear(); 
+    C_IIR.clear(); 
+    B_IIR.clear(); 
+  }
 
-void make_filter::reset() {
-	nested_k = 0;
-	hpf = false;
-	pass_type = low;
+  void make_filter::reset() {
+    nested_k = 0;
+    hpf = false;
+    pass_type = low;
 
-	elliptic_fc = butterworth_fc = chebyshev_fc = 0.5;
-	maxflat_fc = 0.16;
-	gauss_fc = 0.06;
-	notch_fc = 0.25;
-	cut_fc = 0.125;
-	rc_fc = rrc_fc = 0.5;
+    elliptic_fc = butterworth_fc = chebyshev_fc = 0.125;
+    maxflat_fc = 0.16;
+    gauss_fc = 0.06;
+    notch_fc = 0.25;
+    cut_fc = 0.125;
+    rc_fc = rrc_fc = 0.5;
 	
-	remez_pass_edge = 0.4;
-	remez_trans = 0.2;
-	remez_stop_edge = remez_pass_edge+remez_trans;
-	remez_stop_weight = 50;
+    remez_pass_edge = 0.4;
+    remez_trans = 0.2;
+    remez_stop_edge = remez_pass_edge+remez_trans;
+    remez_stop_weight = 50;
 	
-	elliptic_pass_edge = 0.4;
-	elliptic_trans = 0.2;
-	elliptic_stop_edge = elliptic_pass_edge + elliptic_trans;
+    elliptic_pass_edge = 0.4;
+    elliptic_trans = 0.2;
+    elliptic_stop_edge = elliptic_pass_edge + elliptic_trans;
 	
-	elliptic_stop_db = 50;
-	elliptic_ripple = 1.0;
+    elliptic_stop_db = 50;
+    elliptic_ripple = 1.0;
 	
-	chebyshev_ripple = 1.0;
+    chebyshev_ripple = 1.0;
 	
-	rc_alpha = rrc_alpha = 0.25;
-	notch_trans = cut_trans = notch50_trans = 0.9;
+    rc_alpha = rrc_alpha = 0.25;
+    notch_trans = cut_trans = notch50_trans = 0.9;
 	
-	elliptic_order =  4;
-	butterworth_order = 4;
-	chebyshev_order = 4;
-	gauss_taps = 21;
-	remez_taps = 33;
-	maxflat_taps = 45;
-	rc_taps = rrc_taps = 33;
+    elliptic_order =  4;
+    butterworth_order = 4;
+    chebyshev_order = 4;
+    gauss_taps = 21;
+    remez_taps = 33;
+    maxflat_taps = 45;
+    rc_taps = rrc_taps = 33;
 	
-	elliptic_halfband_order = maxflat_halfband_order = 3;
+    elliptic_halfband_order = maxflat_halfband_order = 3;
 	
-	elliptic_halfband_ripple = 0.3;
-	variable_ripple = 0.3;
-	elliptic_halfband_rate  = 2;
-	maxflat_halfband_rate = 2;
-	shape = Chebyshev;
-	last_shape = shape;
-	bits = 0;
-	shelf_low = 9;
-	shelf_high = 1;
-	shelf_fc = 0.25;
-	shelf_gain = 10.0; 
-	low_shelf_gain = 10.0;
-	high_shelf_gain = -10.0;
-	cic_order = 2;
-	cic_rate = 2;
-	
-	comb_gain = 0.5;
-	comb_rate = 2;
-	notch_comb_gain = 0.5;
-	notch_comb_rate = 2;
-    cic_gain = 1/4.0;
-    
+    elliptic_halfband_ripple = 0.3;
+    variable_ripple = 0.3;
+    elliptic_halfband_rate  = 2;
+    maxflat_halfband_rate = 2;
+    shape = Chebyshev;
+    last_shape = shape;
+    bits = 0;
+    shelf_low = 9;
+    shelf_high = 1;
+    shelf_fc = 0.25;
+    shelf_gain = 10.0; 
+    low_shelf_gain = 10.0;
+    high_shelf_gain = -10.0;
     phase = 0;
-    bpf_freq = 0.5;
+  }
+
+  double make_filter::limit(double x, double mx, double mn) {
+    if (x>mx) x = mx;
+    else if (x<mn) x = mn;
+    return x;
+  }
+
+  double make_filter::get_fc(int len,bool in_passband) {
+    // Convert swipe to dB inc/decrease
+    double fc=0.5;
+    double gain = 	pow(2,0.002*len);
+
+    //	std::cout << "(len) " << len << " gain = " << gain << "\n";
 	
-}
-
-double make_filter::limit(double x, double mx, double mn) {
-	if (x>mx) x = mx;
-	else if (x<mn) x = mn;
-	return x;
-}
-
-double make_filter::get_fc(int len,bool in_passband) {
-	// Convert swipe to dB inc/decrease
-	double fc=0.5;
-	double gain = 	pow(2,0.002*len);
-
-	//	std::cout << "(len) " << len << " gain = " << gain << "\n";
-	
-	switch (shape) {
+    switch (shape) {
 		case EllipticHalfband: 
 			fc = 1.0/elliptic_halfband_rate; 
 			break;
@@ -201,7 +177,6 @@ double make_filter::get_fc(int len,bool in_passband) {
 		case MaxflatFIR:  fc = 2.0*limit(gain*maxflat_fc,0.4,0.001);
 			break;
 		case GaussianFIR:  fc = 2.0*limit(gain*gauss_fc,0.4,0.001); 
-            if (pass_type == high) fc = 1.0 - fc;
 			break;
 		case RemezFIR: 
 			if (in_passband) {
@@ -209,7 +184,6 @@ double make_filter::get_fc(int len,bool in_passband) {
 			} else {
 				fc = remez_pass_edge;
 			}
-            if (pass_type == high) fc = 1.0 - fc;
 			break;
 		case NotchIIR: fc = 2.0*limit(gain*notch_fc,0.5,0.001); 
 			break;
@@ -221,143 +195,91 @@ double make_filter::get_fc(int len,bool in_passband) {
 			} else {
 				fc = rc_fc;
 			}
-            if (pass_type == high) fc = 1.0 - fc;
 			break;
 		case RootRaisedCosine:
 			break;
-		case VariableAllpass:
-			fc = (1+nested_k)*0.5; //// FIX-ME
-            break;
-		case VariableShelf:
-			fc = (1+nested_k)*0.5; //// FIX-ME
-            break;
-        case Notch50:
-            fc = 2.0*50.0/fs;
-            break;
-        case Cic:
-            fc = 1.0/cic_rate;
-            break;
-        case None:
-            fc = 0;
-            break;
-        case Shelf:
-            fc = 0;
-            break;
-        case Comb:
-            fc = 0;
-            break;
-        case CombAllpass:
-            fc = 0;
-            break;
-	}
-	return(fc);
-}
+    case None:
+      fc = 0;
+      break;
+    case Shelf:
+      fc = 0;
+      break;
+    }
+    return(fc);
+  }
 
-int make_filter::get_order() {
-	switch (shape) {
-	case EllipticHalfband: return(elliptic_halfband_order); break;
-	case Butterworth:      return(butterworth_order); break; 
-	case Chebyshev:        return(chebyshev_order); break;
-	case Elliptic:         return(elliptic_order); break;
-	case MaxflatHalfband:  return(maxflat_halfband_order); break;
-	case MaxflatFIR:       return(maxflat_taps); break;
-	case GaussianFIR:      return(gauss_taps); break; 
-	case RemezFIR:         return(remez_taps); break;
-	case NotchIIR: return(2);
-	case CutBoost: return(2);
-	case RaisedCosine:     return(rc_taps); break; 
-	case RootRaisedCosine: return(rrc_taps); break;
-	case VariableAllpass:  return(5); break;
-	case VariableShelf:  return(5); break;
-	case Shelf: return(0.0); break;
-	case Cic: return(2*cic_order); break;
-        case Notch50: return(2);
-        case None: return(0);
-        case Comb: return(0);
-        case CombAllpass: return(0);
-	}
-	return(0);
-}
-bool make_filter::is_bpf() {
+  int make_filter::get_order() {
+    switch (shape) {
+    case EllipticHalfband: return(elliptic_halfband_order); break;
+    case Butterworth:      return(butterworth_order); break; 
+    case Chebyshev:        return(chebyshev_order); break;
+    case Elliptic:         return(elliptic_order); break;
+    case MaxflatHalfband:  return(maxflat_halfband_order); break;
+    case MaxflatFIR:       return(maxflat_taps); break;
+    case GaussianFIR:      return(gauss_taps); break; 
+    case RemezFIR:         return(remez_taps); break;
+    case NotchIIR: return(2);
+    case CutBoost: return(2);
+    case RaisedCosine:     return(rc_taps); break; 
+    case RootRaisedCosine: return(rrc_taps); break;
+    case Shelf: return(0.0); break;
+    case None: return(0);
+    }
+    return(0);
+  }
+  bool make_filter::is_bpf() {
     return(pass_type == band);
-}
+  }
 
-bool make_filter::is_fir() {
-	switch (shape) {
+  bool make_filter::is_fir() {
+    switch (shape) {
 		case MaxflatFIR:       return(true); break;
 		case GaussianFIR:      return(true); break; 
 		case RemezFIR:         return(true); break;
 		case RaisedCosine:     return(true); break; 
 		case RootRaisedCosine: return(true); break;
-        default: break;
-	}
-	return(false);
-}
-double make_filter::ripple() {
-	switch (shape) {
+    default: break;
+    }
+    return(false);
+  }
+  double make_filter::ripple() {
+    switch (shape) {
 		case RemezFIR:         return(0.0); break; // for now
 		case Elliptic: return(elliptic_ripple); break;
-	    case Chebyshev: return(chebyshev_ripple); break;
-        default: return(0.0);
-	}
-	return(0.0);
-}
+    case Chebyshev: return(chebyshev_ripple); break;
+    default: return(0.0);
+    }
+    return(0.0);
+  }
 
-double make_filter::stopdB() {
+  double make_filter::stopdB() {
     if (shape == Elliptic) return(elliptic_stop_db); 
     else return(0.0);
-}
+  }
 
-double make_filter::change_center(double f) {
-    bpf_freq = limit(0.0002*f + bpf_freq,1.0,0.0);
+  double make_filter::change_center(double f) {
     return(0);
-}
+  }
 
-double make_filter::horiz_swipe(int len,bool in_passband) {
-	// Convert swipe to dB inc/decrease
+  double make_filter::horiz_swipe(int len,bool in_passband) {
+    // Convert swipe to dB inc/decrease
     const double min_fc = 0.0;
     
-	double gain = 	pow(2,0.002*len);
-	double inc;
+    double gain = 	pow(2,0.002*len);
+    double inc;
 	
-	if (len < 0) inc = 2;
-	else inc = 0.5;
+    if (len < 0) inc = 2;
+    else inc = 0.5;
     
-	switch (shape) {
-		case Cic:
-			if (len < 0) cic_rate = limit(cic_rate+1,64,2);
-			else cic_rate = limit(cic_rate-1,64,2);
-			break;
-		case Comb:
-			if (len < 0) comb_rate = limit(comb_rate+1,64,2);
-			else comb_rate = limit(comb_rate-1,64,2);
-			break;
-		case CombAllpass:
-			if (len < 0) notch_comb_rate = limit(notch_comb_rate+1,64,2);
-			else notch_comb_rate = limit(notch_comb_rate-1,64,2);
-			break;
+    switch (shape) {
 		case EllipticHalfband: 
 			if (in_passband) {
 				elliptic_halfband_rate = limit(inc*elliptic_halfband_rate,64,2);
-//				if ((elliptic_halfband_rate == 2) && (len > 0)) elliptic_halfband_hpf = true;
+        //				if ((elliptic_halfband_rate == 2) && (len > 0)) elliptic_halfband_hpf = true;
 			} else {
 				elliptic_halfband_ripple = limit(elliptic_halfband_ripple/gain,0.5,0.001);
 			}
 			break;
-		case VariableAllpass:
-			if (in_passband) {
-				nested_k = limit(0.002*len+nested_k,1,-1);
-			} else {
-				variable_ripple = limit(variable_ripple/gain,0.5,0.001);
-			}
-			break;			
-		case VariableShelf:
-			//if (in_passband) {
-				nested_k = limit(0.002*len+nested_k,1,-1);
-			//} else {
-			//	variable_ripple = limit(variable_ripple/gain,0.5,0.001);
-			//}
-			break;			
 		case Butterworth:      butterworth_fc = limit(gain*butterworth_fc,0.95,min_fc); 
 			break;
 		case Chebyshev:        chebyshev_fc = limit(gain*chebyshev_fc,0.95,min_fc); 
@@ -366,8 +288,8 @@ double make_filter::horiz_swipe(int len,bool in_passband) {
 			if (in_passband) {
 				elliptic_pass_edge = limit(gain*elliptic_pass_edge,0.95-elliptic_trans,0.001); 
 			} else {
-					elliptic_stop_db = limit(gain*elliptic_stop_db,100,10.0);	
-					elliptic_trans = limit(gain*elliptic_trans,0.95-elliptic_pass_edge,0.001); 
+        elliptic_stop_db = limit(gain*elliptic_stop_db,100,10.0);	
+        elliptic_trans = limit(gain*elliptic_trans,0.95-elliptic_pass_edge,0.001); 
 			}
 			elliptic_stop_edge = elliptic_pass_edge+elliptic_trans;
 			break;
@@ -401,31 +323,27 @@ double make_filter::horiz_swipe(int len,bool in_passband) {
 		case RootRaisedCosine: rrc_alpha = limit(gain*rrc_alpha,1,0.01); 
 			break;
 		case Shelf: shelf_fc	= limit(gain*shelf_fc,0.5,0.0); break;
-        case None: break;
-        case Notch50: break;
-	}
-	return(0.0);
+    case None: break;
+    }
+    return(0.0);
 	
-}
-void make_filter::vertical_swipe(int len, bool in_passband, bool above_stop) {
-	const int MAX_IIR = 20;
-	const int MIN_IIR = 1;
-	const int MAX_FIR = 99;
-	const int MIN_FIR = 15;
-	int inc;
+  }
+  void make_filter::vertical_swipe(int len, bool in_passband, bool above_stop) {
+    const int MAX_IIR = 20;
+    const int MIN_IIR = 1;
+    const int MAX_FIR = 99;
+    const int MIN_FIR = 15;
+    int inc;
 	
-	if (len < 0) inc = 1;
-	else inc = -1;
+    if (len < 0) inc = 1;
+    else inc = -1;
 	
-	// Convert swipe to dB inc/decrease
-	double gain = 	pow(2,0.002*len);
-	double ogain = 1.0/gain;
+    // Convert swipe to dB inc/decrease
+    double gain = 	pow(2,0.002*len);
+    double ogain = 1.0/gain;
 	
 	
-	switch (shape) {
-		case Cic: cic_order = limit(cic_order+inc,5,2); break;
-		case Comb: comb_gain = limit(ogain*comb_gain,0.99,0.01);	break;
-		case CombAllpass: notch_comb_gain = limit(gain*notch_comb_gain,0.99,0.01);	break;
+    switch (shape) {
 		case Butterworth: butterworth_order = limit(butterworth_order+inc,MAX_IIR,MIN_IIR); break;
 		case Chebyshev: 
 			if (in_passband) {
@@ -465,162 +383,95 @@ void make_filter::vertical_swipe(int len, bool in_passband, bool above_stop) {
 		case RaisedCosine: rc_taps = limit(rc_taps+2*inc,MAX_FIR,MIN_FIR);break;
 			
 		case NotchIIR: notch_trans = limit(gain*notch_trans,1,0.001); break;
-		case Notch50: notch50_trans = limit(gain*notch50_trans,1,0.001); break;
 		case CutBoost: cut_trans = limit(gain*cut_trans,10,0.0); CUT_B.set_depth(cut_trans); break;
 		case Shelf: shelf_gain = limit(0.01*len+shelf_gain,100,-100);	break;
-		case VariableShelf:
-			if (above_stop) {
-				high_shelf_gain = limit(0.01*len+high_shelf_gain,0,-100);	
-			} else {
-				low_shelf_gain = limit(0.01*len+low_shelf_gain,100,0);	
-			}
-			break;	
-        default: break;
+    default: break;
 			
-	}
-}
-double make_filter::update(double *w) {return(update(w,1.0)); }
-double make_filter::update(double *w, double inc) {
-	double fc;
-    double n_k = nested_k;
-    double c_rate = cic_rate;
+    }
+  }
+  double make_filter::update(double *w) {return(update(w,1.0)); }
+  double make_filter::update(double *w, double inc) {
+    double fc;
     double e_rate = elliptic_halfband_rate;
     double m_rate = maxflat_halfband_rate;
 
-
-    if (pass_type == band) n_k *= 0.5;
-
-    
-    int freq_off = 0;
-    if (pass_type == band) {
-        freq_off = (int)(bpf_freq*pts);
-    }
-    
-	switch (shape) {
-        case None:
-            for (int i=0;i<pts;i++) w[i] = 1.0;
-            break;
+    switch (shape) {
+    case None:
+      for (int i=0;i<pts;i++) w[i] = 1.0;
+      break;
 		case MaxflatFIR:
 			Maxflat_Fir.set_size(maxflat_taps);
-			if (pass_type == high) fc = 0.5-maxflat_fc;
-			else fc = maxflat_fc;
-            
-            if (pass_type == band) fc *= 0.5;
+      fc = maxflat_fc;
 			butterworth_fir(Maxflat_Fir, fc);
-			if (bits != 0) Maxflat_Fir.quantize(bits);
-			
 			M_Fir.set_size(maxflat_taps);
 			M_Fir.settaps(Maxflat_Fir);
-			M_Fir.normalize_gain();
-			if (pass_type == high) M_Fir.make_hpf();
-			fir_freq(M_Fir,pts,w,freq_off,inc);
-			//std::cout << "Maxflat fc = " << maxflat_fc << " taps = " << maxflat_taps << " sum = " << M_Fir.coeff_sum() << "\n";
-            if (pass_type == high) return(0.5 - maxflat_fc);
-            else return(maxflat_fc);
+			fir_freq(M_Fir,pts,w,inc);
+      return(maxflat_fc);
 			break;
 		case RemezFIR:
-		{
-			fir_coeff<double> Remez_Fir(remez_taps);
-            double pass_edge = remez_pass_edge;
-            double stop_edge = remez_stop_edge;
-            if (pass_type == band) {
-                pass_edge *= 0.5;
-                stop_edge *= 0.5;
-            }
-			create_remez_lpfir(Remez_Fir,pass_edge,stop_edge,remez_stop_weight);
-			if (bits != 0) Remez_Fir.quantize(bits);
+      {
+        fir_coeff<double> Remez_Fir(remez_taps);
+        double pass_edge = remez_pass_edge;
+        double stop_edge = remez_stop_edge;
+        create_remez_lpfir(Remez_Fir,pass_edge,stop_edge,remez_stop_weight);
+        R_Fir.set_size(remez_taps);
+        R_Fir.settaps(Remez_Fir);
+        fir_freq(R_Fir,pts,w,inc);
 			
-			R_Fir.set_size(remez_taps);
-			R_Fir.settaps(Remez_Fir);
-			if (pass_type == high) R_Fir.make_hpf();
-			fir_freq(R_Fir,pts,w,freq_off,inc);
-			
-		}
-            if (pass_type == high) 	return(remez_pass_edge);
-            else return(1.0-remez_pass_edge);
+      }
+      return(1.0-remez_pass_edge);
 			break;
 		case GaussianFIR:
-		{
-			fir_coeff<double> Gaussian_Fir(gauss_taps);
-			if (pass_type == high) fc = 1-gauss_fc;
-			else fc = gauss_fc;
-            if (pass_type == band) fc *= 0.5;
-			gaussian_fir(Gaussian_Fir, fc, 8);
-			if (bits != 0) Gaussian_Fir.quantize(bits);
+      {
+        fir_coeff<double> Gaussian_Fir(gauss_taps);
+        fc = gauss_fc;
+        gaussian_fir(Gaussian_Fir, fc);
+        G_Fir.set_size(gauss_taps);
+        G_Fir.settaps(Gaussian_Fir);
+        fir_freq(G_Fir,pts,w,inc);
 
-			G_Fir.set_size(gauss_taps);
-			G_Fir.settaps(Gaussian_Fir);
-			if (pass_type == high) G_Fir.make_hpf();
-			fir_freq(G_Fir,pts,w,freq_off,inc);
-
-		}
-		if (pass_type==high) return(1.0-gauss_fc);
-		else return(gauss_fc);
-		break;
+      }
+      if (pass_type==high) return(1.0-gauss_fc);
+      else return(gauss_fc);
+      break;
 		case RaisedCosine:
-		{
-			fir_coeff<double> RaisedCosine_Fir(rc_taps);
-            fc = 1.0/rc_fc;
-            if (pass_type == band) fc *= 2;
-			raised_cosine(RaisedCosine_Fir, rc_alpha, fc);
-			if (bits != 0) RaisedCosine_Fir.quantize(bits);
-
-			RC_Fir.set_size(rc_taps);
-			RC_Fir.settaps(RaisedCosine_Fir);
-			if (pass_type == high) RC_Fir.make_hpf();
-			fir_freq(RC_Fir,pts,w,freq_off,inc);
-		}
+      {
+        fir_coeff<double> RaisedCosine_Fir(rc_taps);
+        fc = 1.0/rc_fc;
+        raised_cosine(RaisedCosine_Fir, rc_alpha, fc);
+        RC_Fir.set_size(rc_taps);
+        RC_Fir.settaps(RaisedCosine_Fir);
+        fir_freq(RC_Fir,pts,w,inc);
+      }
 			//std::cout << "RC alpha = " << rc_alpha << " taps = " << rc_taps << " ";
 			//std::cout << " sum = " << RC_Fir.coeff_sum() << "\n";
-            if (pass_type == high) return(1.0-rc_fc);
-			else return(rc_fc);
+      return(rc_fc);
 			break;
 		case RootRaisedCosine:
-		{
-			fir_coeff<double> RootRaisedCosine_Fir(rrc_taps);
-			root_raised_cosine(RootRaisedCosine_Fir, rrc_alpha, 2);
-			if (bits != 0) RootRaisedCosine_Fir.quantize(bits);
-			RRC_Fir.set_size(rrc_taps);
-			RRC_Fir.settaps(RootRaisedCosine_Fir);
-			if (pass_type == high) RRC_Fir.make_hpf();
-			fir_freq(RRC_Fir,pts,w,freq_off,inc);
-		}
+      {
+        fir_coeff<double> RootRaisedCosine_Fir(rrc_taps);
+        root_raised_cosine(RootRaisedCosine_Fir, rrc_alpha, 2);
+        RRC_Fir.set_size(rrc_taps);
+        RRC_Fir.settaps(RootRaisedCosine_Fir);
+        fir_freq(RRC_Fir,pts,w,inc);
+      }
 			return(0.5);
 			break;
 			
 			
-		// Special Allpass based IIRs
-			
-		case VariableAllpass:
-			V_All.init(variable_ripple,n_k);
-			V_All.reset();
-			V_All.set_hpf(pass_type == high);
-			other_freq(V_All,pts,w,freq_off,inc);
-			return((nested_k+1.0)/2.0);
-			break;
-		case VariableShelf:
-			S_All.init(variable_ripple,n_k,low_shelf_gain,high_shelf_gain);
-			S_All.reset();
-			S_All.set_hpf(pass_type == high);
-			other_freq(S_All,pts,w,freq_off,inc);
-			return((nested_k+1.0)/2.0);
-			break;
-        case MaxflatHalfband:
+      // Special Allpass based IIRs
+    case MaxflatHalfband:
 			B_Sub.reset();
-            if (pass_type == band) m_rate *= 2;
-			B_Sub.set_coeffs(0,maxflat_halfband_order,m_rate,bits);
-			B_Sub.set_hpf(pass_type == high);
-			other_freq(B_Sub,pts,w,freq_off,inc);
+			B_Sub.set_coeffs(0,maxflat_halfband_order,m_rate);
+			other_freq(B_Sub,pts,w,inc);
 			return(1.0/maxflat_halfband_rate);
 			break;
 
 		case EllipticHalfband:
-            if (pass_type == band) e_rate *= 2;
 			E_Sub.reset();			
 			E_Sub.set_coeffs(elliptic_halfband_ripple,elliptic_halfband_order,
-							 e_rate,bits);
-			E_Sub.set_hpf(pass_type == high);
-			other_freq(E_Sub,pts,w,freq_off,inc);
+                       e_rate);
+			other_freq(E_Sub,pts,w,inc);
 			return(1.0/elliptic_halfband_order);
 			break;
 			
@@ -628,106 +479,57 @@ double make_filter::update(double *w, double inc) {
 			////////// IIRs
 			
 		case Elliptic:
-		{
-			iir_coeff CF(elliptic_order);
-			bool lpf = (pass_type != high);
-			double pass_edge = elliptic_pass_edge;
-            double stop_edge = elliptic_stop_edge;
-            if (pass_type == band) {
-                pass_edge *= 0.5;
-                stop_edge *= 0.5;
-            }
-
-			if (pass_type == high) pass_edge = 1-elliptic_pass_edge;
-			elliptic_iir(CF,pass_edge,lpf,stop_edge,elliptic_stop_db,elliptic_ripple);
-            E_IIR.realloc(CF);
-            E_IIR.reset();
-			if (pass_type == high) E_IIR.gain = CF.hpf_gain;
-			iir_freq(CF,pass_type == high,pts,bits,w,freq_off,inc);
-		}
+      {
+        iir_coeff CF(elliptic_order);
+        elliptic_iir(CF,elliptic_pass_edge,elliptic_ripple,elliptic_stop_db);
+        E_IIR.realloc(CF);
+        E_IIR.reset();
+        iir_freq(CF,pass_type == high,pts,bits,w,inc);
+      }
 			return(elliptic_pass_edge);
 			break;
 		case Chebyshev:
-		{
-			iir_coeff CF(chebyshev_order);
-			bool lpf = (pass_type != high);
-			if (pass_type == high) fc = 1-chebyshev_fc;
-			else 			fc = chebyshev_fc;
-            if (pass_type == band) fc *= 0.5;
-			chebyshev_iir(CF,fc,lpf,chebyshev_ripple);
-			C_IIR.realloc(CF);
-            C_IIR.reset();
-			if (pass_type == high) C_IIR.gain = CF.hpf_gain;
-			iir_freq(CF,pass_type == high,pts,bits,w,freq_off,inc);
-		}
+      {
+        iir_coeff CF(chebyshev_order);
+        fc = chebyshev_fc;
+        chebyshev_iir(CF,fc,chebyshev_ripple);
+        C_IIR.realloc(CF);
+        C_IIR.reset();
+        iir_freq(CF,pass_type == high,pts,bits,w,inc);
+      }
 			return(chebyshev_fc);
 			break;
 		case Butterworth:
-		{
-			iir_coeff CF(butterworth_order);
-			bool lpf = (pass_type != high);
-			if (pass_type == high) fc = 1-butterworth_fc;
-			else fc = butterworth_fc;
-            if (pass_type == band) fc *= 0.5;
-			butterworth_iir(CF,fc,lpf,3.0);
-            B_IIR.realloc(CF);
-            B_IIR.reset();
-            //			B_IIR.set_coeffs(CF);
-			if (pass_type == high) B_IIR.gain = CF.hpf_gain;
-			iir_freq(CF,pass_type == high,pts,bits,w,freq_off,inc);
-		}
+      {
+        iir_coeff CF(butterworth_order);
+        fc = butterworth_fc;
+        butterworth_iir(CF,fc,3.0);
+        B_IIR.realloc(CF);
+        B_IIR.reset();
+        iir_freq(CF,pass_type == high,pts,bits,w,inc);
+      }
 			return(butterworth_fc);
 			break;
 			
-		// Special filters
-		case Cic:
-            if (pass_type == band) c_rate *= 2;
-
-			CCIC.num_stages(cic_order,c_rate);
-			cic_freq(c_rate,2*cic_order,pts,w,freq_off,inc);
-            cic_gain = 1.0;
-            for (int ci=0;ci<cic_order;ci++) {
-                cic_gain = cic_gain/c_rate;
-            }
-            return(1.0/cic_rate);
-			break;
-		case Comb:
-			COMB.init(comb_gain,comb_rate);
-			COMB.reset();
-			other_freq(COMB,pts,w,freq_off,inc);
-			break;
-		case CombAllpass:
-			COMB_All.set_coeffs(notch_comb_gain,notch_comb_rate);
-			COMB_All.reset();
-			other_freq(COMB_All,pts,w,freq_off,inc);
-			break;
+      // Special filters
 		case NotchIIR:
 			NOTCH.set_coeffs(notch_fc,notch_trans);
 			NOTCH.reset();
-			other_freq(NOTCH,pts,w,freq_off,inc);
+			other_freq(NOTCH,pts,w,inc);
 			return(2.0*notch_fc);
-			break;
-		case Notch50:
-        {
-            double nfc = 50.0/fs;
-			N50.set_coeffs(nfc,notch50_trans);
-			N50.reset();
-			other_freq(N50,pts,w,freq_off,inc);
-			return(2.0*nfc);
-        }
 			break;
 		case  CutBoost:
 			CUT_B.reset();
-			other_freq(CUT_B,pts,w,freq_off,inc);
+			other_freq(CUT_B,pts,w,inc);
 			return(2.0*cut_fc);
 			break;
 		case Shelf: 
 			Z1_IIR.set_coeffs(shelf_fc,shelf_gain, -shelf_gain);
-			other_freq(Z1_IIR, pts, w,freq_off,inc);
+			other_freq(Z1_IIR, pts, w,inc);
 			break;	
 			
-	}
-	return(0);
-}
+    }
+    return(0);
+  }
 
 } // namespace SPUC
