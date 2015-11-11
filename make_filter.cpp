@@ -17,7 +17,6 @@
 #include "make_filter.h"
 #include "other_freq.h"
 #include <spuce/filters/iir.h>
-#include <spuce/filters/iir_2nd.h>
 #include <spuce/filters/fir_coeff.h>
 #include <spuce/filters/notch_allpass.h>
 #include <spuce/filters/iir_coeff.h>
