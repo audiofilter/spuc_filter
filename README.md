@@ -1,7 +1,9 @@
 spuc_filter
 ===========
 
-A Qt5 based GUI demonstration of the various filtering capabilities of the SPUCE library
+A Qt5 based GUI demonstration of the various filtering capabilities of the spuce library
+
+This was originally for SPUC library and is now largely redundant since the spuce library self contains various QT apps. However, it does show as a standalone example how to use the spuce library
 
 This uses 
 
