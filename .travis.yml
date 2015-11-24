@@ -10,10 +10,10 @@ before_install:
   - brew update
 install:
   - brew install qt5
+  - brew tap audiofilter/spuce
   - brew linkapps
 # Change this to your needs
 before_script:
-  - git clone https://github.com/audiofilter/spuce.git
   - mkdir build
   - cd build
   - cmake ..

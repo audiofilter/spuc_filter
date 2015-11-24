@@ -23,41 +23,23 @@ set(SOURCES
 	des_filter.cpp 
 )
 
-SET(FILT_SRCS  
-	spuce/spuce/filters/butterworth_iir.cpp
-	spuce/spuce/filters/chebyshev_iir.cpp
-	spuce/spuce/filters/chebyshev2_iir.cpp
-	spuce/spuce/filters/elliptic_iir.cpp
-	spuce/spuce/filters/find_roots.cpp
-	spuce/spuce/filters/fir_coeff.cpp
-	spuce/spuce/filters/iir_coeff.cpp
-	# FIR stuff
-	spuce/spuce/filters/gaussian_fir.cpp
-	spuce/spuce/filters/butterworth_fir.cpp
-	spuce/spuce/filters/raised_cosine_imp.cpp
-	spuce/spuce/filters/root_raised_cosine_imp.cpp
-	spuce/spuce/filters/remez_fir.cpp
-	spuce/spuce/filters/sinc_fir.cpp
-	spuce/spuce/filters/create_remez_lpfir.cpp
-	spuce/spuce/filters/fir_inv_dft.cpp
-	spuce/spuce/filters/transform_fir.cpp
-	# Windows
-	spuce/spuce/filters/window.cpp
-	# Other spuce/spuce/filters
-	spuce/spuce/filters/butterworth_allpass.cpp
-	spuce/spuce/filters/elliptic_allpass.cpp
-  spuce/spuce/filters/shelf_allpass1.cpp
-)
+find_package(SPUCE CONFIG)
+if (SPUCE_FOUND)
+  message(STATUS "Found Spuce!")
+  message(STATUS "Spuce inc dir = ${Spuce_INCLUDE_DIRS}")
+  message(STATUS "Spuce libs = ${Spuce_LIBRARIES}")
+endif()
+
 
 SET(plotdes_SOURCES main.cpp mainwindow.cpp other_freq.cpp qcustomplot.cpp)
 SET(plotdes_HEADERS mainwindow.h other_freq.h qcustomplot.h)
 
-INCLUDE_DIRECTORIES(".." "/usr/local/opt/qt5/include" "${CMAKE_CURRENT_SOURCE_DIR}/spuce" ${QT5_INCLUDES})
+INCLUDE_DIRECTORIES(".." "/usr/local/opt/qt5/include" "${Spuce_INCLUDE_DIRS}" ${QT5_INCLUDES})
 ADD_DEFINITIONS(${QT5Widgets_DEFINITIONS})
 
 ADD_LIBRARY(filtlib ${SOURCES} ${FILT_SRCS})
 ADD_EXECUTABLE(plotdes ${plotdes_SOURCES} ${plotdes_HEADERS_MOC})
-TARGET_LINK_LIBRARIES(plotdes filtlib ${QT_LIBRARIES} ${SPUCEFILT_LIBRARY})
+TARGET_LINK_LIBRARIES(plotdes filtlib ${QT_LIBRARIES} ${Spuce_LIBRARIES})
 QT5_USE_Modules(plotdes Gui)
 QT5_USE_Modules(plotdes Core)
 QT5_USE_Modules(plotdes Widgets)
